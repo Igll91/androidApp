@@ -9,9 +9,10 @@ public class ActivityHelper {
 	public static boolean isOnline(Activity activity) {
 		ConnectivityManager cm = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo netInfo = cm.getActiveNetworkInfo();
-		if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+		
+		if (netInfo != null && netInfo.isConnectedOrConnecting()) 
 			return true;
-		}
+		
 		return false;
 	}
 }

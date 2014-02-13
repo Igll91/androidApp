@@ -1,19 +1,19 @@
 package com.linuxzasve.mobile.rest;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import java.text.ParseException;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.Html;
 
-public class Post {
+public class Post implements Parcelable{
 	private int id;
 	private String type;
 	private String slug;
@@ -216,7 +216,8 @@ public class Post {
 	public Post() {
 	}
 
-	private String ClanakRemoveHardcodedDim(final String clanak) {
+	private String ClanakRemoveHardcodedDim(final String clanak) 
+	{
 		String filtriraniClanak = clanak;
 
 		List<Pattern> uzorciZaIzbaciti = new ArrayList<Pattern>();
@@ -226,11 +227,13 @@ public class Post {
 		uzorciZaIzbaciti.add(Pattern.compile("\"width: \\d+px\""));
 
 		Iterator<Pattern> it = uzorciZaIzbaciti.iterator();
-		while (it.hasNext()) {
+		while (it.hasNext()) 
+		{
 			Pattern uzorak = it.next();
 			Matcher htmlClanka = uzorak.matcher(filtriraniClanak);
 
-			while (htmlClanka.find()) {
+			while (htmlClanka.find()) 
+			{
 				int poc = htmlClanka.start();
 				int kraj = htmlClanka.end();
 
@@ -242,7 +245,8 @@ public class Post {
 		return filtriraniClanak;
 	}
 	
-	public String getDate(String format) {
+	public String getDate(String format) 
+	{
 		Date date;
 		String result = "";
 		try {
@@ -258,4 +262,89 @@ public class Post {
 		}
 		return result;
 	}
+
+	// PARCELABLE STUFF
+	
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(id);
+		dest.writeStringArray(new String[]{ type, slug, url, status, title, title_plain, content, excerpt, date, modified });
+		dest.writeTypedList(categories);
+		dest.writeTypedList(tags);
+		dest.writeParcelable(author, PARCELABLE_WRITE_RETURN_VALUE); // dali ide ta maska il ne ... ? 
+		dest.writeTypedList(comments);
+		dest.writeTypedList(attachments);
+		dest.writeInt(comment_count);
+		dest.writeString(comment_status);
+		dest.writeString(thumbnail);
+		dest.writeParcelable(custom_fields, PARCELABLE_WRITE_RETURN_VALUE);
+		dest.writeString(thumbnail_size);
+		dest.writeParcelable(thumbnail_images, PARCELABLE_WRITE_RETURN_VALUE);
+	}
+	
+	public static final Parcelable.Creator<Post> CREATOR = new Parcelable.Creator<Post>() 
+	{
+        @Override
+        public Post createFromParcel(Parcel source) {
+            return new Post(source);
+        }
+ 
+        @Override
+        public Post[] newArray(int size) {
+            return new Post[size];
+        }
+    };
+    
+    private Post(Parcel in)
+    {
+    	initialize();
+    	
+    	this.id = in.readInt();
+    	
+    	String[] s = new String[10];
+    	in.readStringArray(s);
+    	
+    	this.type 		= s[0];
+    	this.slug 		= s[1];
+    	this.url 		= s[2];
+    	this.status 	= s[3];
+    	this.title 		= s[4];
+    	this.title_plain= s[5];
+    	this.content 	= s[6];
+    	this.excerpt 	= s[7];
+    	this.date 		= s[8];
+    	this.modified 	= s[9];
+    	
+    	in.readTypedList(this.categories, null); // NULL POINTER EXCEPTION 
+    	in.readTypedList(this.tags, null);
+    	
+    	this.author = in.readParcelable(null);
+    	
+    	in.readTypedList(this.comments, null);
+    	in.readTypedList(this.attachments, null);
+    	
+    	this.comment_count 	= in.readInt();
+    	this.comment_status = in.readString();
+    	this.thumbnail 		= in.readString();
+    	
+    	this.custom_fields = in.readParcelable(null);	
+
+    	this.thumbnail_size = in.readString();
+    	
+    	this.thumbnail_images = in.readParcelable(null);
+    }
+    
+    private void initialize()
+    {
+    	categories 	= new ArrayList<Category>();
+    	tags 		= new ArrayList<Tag>();
+    	comments 	= new ArrayList<Comment>();
+    	attachments = new ArrayList<Attachment>();
+    }
 }

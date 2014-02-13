@@ -9,10 +9,11 @@ import org.apache.http.message.BasicNameValuePair;
 
 public class TimThumb {
 
-	static String baseUrl = "http://www.linuxzasve.com/wp-content/themes/bigfoot/includes/timthumb.php";
+	private static final String BASE_URL = "http://www.linuxzasve.com/wp-content/themes/bigfoot/includes/timthumb.php";
 
-	public static String generateTimThumbUrl(final String imageUrl, final int height, final int width, final int mode) {
-		String url = baseUrl;
+	public static String generateTimThumbUrl(final String imageUrl, final int height, final int width, final int mode) 
+	{
+		String url = BASE_URL;
 
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(4);
 		nameValuePairs.add(new BasicNameValuePair("src", imageUrl));

@@ -20,7 +20,7 @@ import org.apache.http.message.BasicNameValuePair;
 
 public class LzsRestApi {
 
-	String baseUrl = "http://www.linuxzasve.com/api/";
+	private final static String BASE_URL = "http://www.linuxzasve.com/api/";
 
 	/* number of posts to fetch */
 	Integer numberOfPosts = Integer.valueOf(10);
@@ -42,7 +42,7 @@ public class LzsRestApi {
 		nameValuePairs.add(new BasicNameValuePair("include", generateInclude(include)));
 
 		/* generate request url */
-		String url = generateRequestString(baseUrl, "get_recent_posts/", nameValuePairs);
+		String url = generateRequestString(BASE_URL, "get_recent_posts/", nameValuePairs);
 
 		/* submit query, get json data */
 		String jsonResult = getContent(url);
@@ -63,7 +63,7 @@ public class LzsRestApi {
 		nameValuePairs.add(new BasicNameValuePair("search", search));
 
 		/* generate request url */
-		String url = generateRequestString(baseUrl, "get_search_results/", nameValuePairs);
+		String url = generateRequestString(BASE_URL, "get_search_results/", nameValuePairs);
 
 		/* submit query, get json data */
 		String jsonResult = getContent(url);
@@ -71,10 +71,11 @@ public class LzsRestApi {
 		return jsonResult;
 	}
 
-	private String getContent(final String url) throws IOException {
-
+	private String getContent(final String url) throws IOException 
+	{
 		HttpResponse response = null;
-		try {
+		try 
+		{
 			HttpClient client = new DefaultHttpClient();
 			HttpGet request = new HttpGet();
 			request.setURI(new URI(url));
@@ -84,15 +85,13 @@ public class LzsRestApi {
 			e.printStackTrace();
 		}
 		catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		return getStringFromInputStream(response.getEntity().getContent());
-
 	}
 
 	private static String getStringFromInputStream(final InputStream is) {
@@ -134,14 +133,14 @@ public class LzsRestApi {
 	 * @return
 	 */
 	private String generateInclude(final String includes[]) {
-		String result = "";
-		int i;
-		for (i = 0; i < (includes.length - 1); i++) {
-			result += (includes[i] + ",");
-		}
-		result += includes[i];
-		return result;
+		StringBuilder sb = new StringBuilder();
+		
+		int i = 0;
+		for (; i < (includes.length - 1); i++) 
+			sb.append(includes[i] + ",");
 
+		sb.append(includes[i]);
+		return sb.toString();
 	}
 
 	/**
@@ -154,19 +153,20 @@ public class LzsRestApi {
 	 * @param parameters
 	 * @return
 	 */
-	private String generateRequestString(final String baseUrl, final String method, final List<NameValuePair> parameters) {
-		String url = "";
-
+	private String generateRequestString(final String baseUrl, final String method, final List<NameValuePair> parameters) 
+	{
+		StringBuilder urlSB = new StringBuilder();
+		
 		/* add base url */
-		url += baseUrl;
-
+		urlSB.append(baseUrl);
+		
 		/* add method */
-		url += method;
+		urlSB.append(method);
 
 		/* generate query string */
 		String queryString = URLEncodedUtils.format(parameters, "UTF-8");
-		url += ("?" + queryString);
+		urlSB.append("?").append(queryString);
 
-		return url;
+		return urlSB.toString();
 	}
 }

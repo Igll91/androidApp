@@ -1,6 +1,9 @@
 package com.linuxzasve.mobile.rest;
 
-public class Image {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Image implements Parcelable{
 	private DetailedImage full;
 	private DetailedImage thumbnail;
 	private DetailedImage medium;
@@ -58,5 +61,45 @@ public class Image {
 	}
 
 
-	public Image(){};
+	public Image(){}
+
+	// PARCELABLE
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeParcelable(full, PARCELABLE_WRITE_RETURN_VALUE);
+		dest.writeParcelable(thumbnail, PARCELABLE_WRITE_RETURN_VALUE);	
+		dest.writeParcelable(medium, PARCELABLE_WRITE_RETURN_VALUE);
+		dest.writeParcelable(large, PARCELABLE_WRITE_RETURN_VALUE);
+		dest.writeParcelable(wptouch_new_thumbnail, PARCELABLE_WRITE_RETURN_VALUE);
+	};
+	
+	public static final Parcelable.Creator<Image> CREATOR = new Parcelable.Creator<Image>() 
+	{
+        @Override
+        public Image createFromParcel(Parcel source) {
+            return new Image(source);
+        }
+ 
+        @Override
+        public Image[] newArray(int size) {
+            return new Image[size];
+        }
+    };
+    
+    private Image(Parcel in)
+    {
+    	this.full 					= in.readParcelable(null);
+    	this.thumbnail 				= in.readParcelable(null);
+    	this.medium 				= in.readParcelable(null);
+    	this.large 					= in.readParcelable(null);
+    	this.wptouch_new_thumbnail 	= in.readParcelable(null);
+    }
 }

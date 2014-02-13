@@ -1,6 +1,7 @@
 <resources>
 	<string name="app_name">Linux za sve</string>
 	<string name="title_activity_lista_novosti">Linux za sve</string>
+	<string name="subtitle_activity_lista_novosti">Najnoviji Članci</string>
 	<string name="gumb_komentari">Komentari</string>
 	<string name="menu_refresh">Osvježi</string>
 	<string name="menu_search">Pretraži</string>
@@ -14,5 +15,4 @@
 	<string name="novi_komentar_hint_komentar">Komentar</string>
 	<string name="search_hint">Pretraži Linux za sve</string>
 	<string name="app_label">Linux za sve</string>
-
 </resources>

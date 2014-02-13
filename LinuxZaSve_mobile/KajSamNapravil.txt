@@ -1,0 +1,20 @@
+Kaj sam promjenil za sad: 
+
+#1 - prebacil MySimpleArrayAdapter u novu klasu da se Lista novosti lakše èita. 
+#2 - iz liste novosti maknul referencu na samu Activity jer je nepotrebno. 
+#3 - LzzRestApi generateInclude metodu promjenil da koristi StringBuilder.
+#4 - Fiksne url-ove promjenil u private static final polja sa velikim slovima.
+#5 - U ListaNovosti klasi sam implementiral OnItemClickListener i napravil cleanScreen metodu.
+#6 - U ListaNovosti klasi sam izmjenjal malo redoslijed instanciranja Adaptera.
+#7 - HTTP_FEEDS_FEEDBURNER_COM_LINUXZASVE  ListaNovosti.
+#8 - Toast sam promjenil.
+
+DONE : 
+------------------------------------------------------------------------------------
+1# U ListaNovosti da se kod rotiranja ureðaja ne skida ponovo s neta materijal veæ da se spremi u bundel instancu i reloada.
+  Ovo povlaèi dosta parcelable posla, nvm 3^^^ :D 
+
+TO DO : 
+------------------------------------------------------------------------------------
+2# Isto to spremanje u Bundle napraviti za komentare. 
+
