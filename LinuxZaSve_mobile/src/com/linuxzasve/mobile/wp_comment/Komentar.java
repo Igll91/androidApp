@@ -1,10 +1,15 @@
 package com.linuxzasve.mobile.wp_comment;
 
+import com.linuxzasve.mobile.rest.Image;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
 
 /**
  * Klasa predstavlja jedan Linux za sve post dobiven iz informacija dostupnih na RSS feedu.
  */
-public class Komentar {
+public class Komentar implements Parcelable{
 
 	private String publishDate;
 	private String creator;
@@ -133,4 +138,42 @@ public class Komentar {
 	public String getThumbnail() {
 		return this.thumbnail;
 	}
+
+	// PARCELABLE
+	
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeStringArray(new String[]{ creator, content, thumbnail, akismetCommentNonce, commentPostId });
+	}
+	
+	public static final Parcelable.Creator<Komentar> CREATOR = new Parcelable.Creator<Komentar>() 
+	{
+        @Override
+        public Komentar createFromParcel(Parcel source) {
+            return new Komentar(source);
+        }
+ 
+        @Override
+        public Komentar[] newArray(int size) {
+            return new Komentar[size];
+        }
+    };
+    
+    private Komentar(Parcel in)
+    {
+    	String[] v = new String[5];
+    	in.readStringArray(v);
+    	
+    	this.creator 				= v[0];
+    	this.content 				= v[1];
+    	this.thumbnail 				= v[2];
+    	this.akismetCommentNonce 	= v[3];
+    	this.commentPostId 			= v[4];
+    }
 }

@@ -277,15 +277,15 @@ public class Post implements Parcelable{
 		dest.writeStringArray(new String[]{ type, slug, url, status, title, title_plain, content, excerpt, date, modified });
 		dest.writeTypedList(categories);
 		dest.writeTypedList(tags);
-		dest.writeParcelable(author, PARCELABLE_WRITE_RETURN_VALUE); // dali ide ta maska il ne ... ? 
+		dest.writeParcelable(author, 0); // dali ide ta maska il ne ... ? 
 		dest.writeTypedList(comments);
 		dest.writeTypedList(attachments);
 		dest.writeInt(comment_count);
 		dest.writeString(comment_status);
 		dest.writeString(thumbnail);
-		dest.writeParcelable(custom_fields, PARCELABLE_WRITE_RETURN_VALUE);
+		dest.writeParcelable(custom_fields, 0);
 		dest.writeString(thumbnail_size);
-		dest.writeParcelable(thumbnail_images, PARCELABLE_WRITE_RETURN_VALUE);
+		dest.writeParcelable(thumbnail_images, 0);
 	}
 	
 	public static final Parcelable.Creator<Post> CREATOR = new Parcelable.Creator<Post>() 
@@ -324,7 +324,7 @@ public class Post implements Parcelable{
     	in.readTypedList(this.categories, null); // NULL POINTER EXCEPTION 
     	in.readTypedList(this.tags, null);
     	
-    	this.author = in.readParcelable(null);
+    	this.author = in.readParcelable(Author.class.getClassLoader()); // BAD PARCELABLE EXCEPTION, prouèiti why,,, vjerojatno class loader nešta...
     	
     	in.readTypedList(this.comments, null);
     	in.readTypedList(this.attachments, null);
@@ -333,11 +333,11 @@ public class Post implements Parcelable{
     	this.comment_status = in.readString();
     	this.thumbnail 		= in.readString();
     	
-    	this.custom_fields = in.readParcelable(null);	
+    	this.custom_fields = in.readParcelable(CustomFiels.class.getClassLoader());	
 
     	this.thumbnail_size = in.readString();
     	
-    	this.thumbnail_images = in.readParcelable(null);
+    	this.thumbnail_images = in.readParcelable(Thumbnail.class.getClassLoader());
     }
     
     private void initialize()

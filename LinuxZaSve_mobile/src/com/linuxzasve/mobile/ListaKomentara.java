@@ -1,160 +1,89 @@
 package com.linuxzasve.mobile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
-import com.linuxzasve.mobile.emote.EmoticonDrawables;
+import com.linuxzasve.mobile.adapters.KomentariArrayAdapter;
 import com.linuxzasve.mobile.wp_comment.Komentar;
 import com.linuxzasve.mobile.wp_comment.WordpressCommentParser;
-
-import android.graphics.drawable.BitmapDrawable;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.text.Html;
-import android.text.Html.ImageGetter;
-import android.text.method.LinkMovementMethod;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 
 public class ListaKomentara extends SherlockActivity {
 	
 	private ListView listView;
-	private ListaKomentara ovaAct;
+	private MenuItem refresh;
+
 	LinearLayout komentariProgressLayout;
 	String message;
 	String post_id;
 	String akismet;
-	private MenuItem refresh;
 	
-	
-	public class MySimpleArrayAdapter extends ArrayAdapter<Komentar> {
-		private final Context context;
-		private final List<Komentar> values;
-
-		public MySimpleArrayAdapter(Context context, List<Komentar> naslovi) {
-			super(context, R.layout.komentar_redak, naslovi);
-			this.context = context;
-			this.values = naslovi;
-
-			post_id = naslovi.get(0).getCommentPostId();
-			akismet = naslovi.get(0).getAkismetCommentNounce();
-
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View rowView = inflater.inflate(R.layout.komentar_redak, parent, false);
-			TextView neki_tekst = (TextView) rowView.findViewById(R.id.tekst_komentar );
-			neki_tekst.setMovementMethod(LinkMovementMethod.getInstance());
-			TextView datum = (TextView) rowView.findViewById(R.id.datum_komentar);
-			TextView autor = (TextView) rowView.findViewById(R.id.autor_komentar);
-			ImageView thumbnail = (ImageView) rowView.findViewById(R.id.komentarThumbnail);
-//			datum.setText(values.get(values.size() - position - 1).datumDdmmyyy());
-			datum.setText(values.get(values.size() - position - 1).getPublishDate());
-			autor.setText(values.get(values.size() - position - 1).getCreator());
-			
-//			neki_tekst.setText(Html.fromHtml(values.get(values.size() - position - 1).getContent()));
-			
-			neki_tekst.setText(Html.fromHtml(
-					values.get(values.size() - position - 1).getContent(),
-					new ImageGetter() {
-						@Override
-						public Drawable getDrawable(String source) {
-							
-							/* Dohvacam ID slike. Ako nema takovg smajla, vracam null */
-							Integer id = EmoticonDrawables.getDrawableId(source);
-							
-							if (id == null) {
-								return null;
-							}
-
-							Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), id);
-
-							Drawable d = new BitmapDrawable(context.getResources(), bitmap);
-							int dWidth = d.getIntrinsicWidth();
-							int dHeight = d.getIntrinsicHeight();
-
-							d.setBounds(0, -dHeight, dWidth, 0);
-							return d;
-						}
-					}, null));
-			
-			UrlImageViewHelper
-			.setUrlDrawable(thumbnail, values.get(values.size() - position - 1)
-					.getThumbnail());
-			
-			return rowView;
-		}
-	} 
-	
-	private class DownloadRssFeed extends AsyncTask<String, Void, WordpressCommentParser> {
-		@Override
-		protected void onPreExecute() {
-		}
-		
-		@Override
-		protected WordpressCommentParser doInBackground(String... urls) {
-			WordpressCommentParser lzs_feed=null;
-			try {
-				lzs_feed = new WordpressCommentParser(urls[0]);
-			} catch (IllegalStateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			return lzs_feed;
-		}
-
-		@Override
-		protected void onPostExecute(WordpressCommentParser lzs_feed) {
-			komentariProgressLayout.setVisibility(View.GONE);
-			refresh.setActionView(null);
-			
-			MySimpleArrayAdapter adapter = new MySimpleArrayAdapter(ovaAct, lzs_feed.getPosts());
-
-			listView.setAdapter(adapter); 
-		}
-	}
+	private List<Komentar> listOfComments;
+	private KomentariArrayAdapter adapter;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.lista_komentara);
-		ovaAct = this;
+
 		listView = (ListView) findViewById(R.id.komentari);
 		komentariProgressLayout = (LinearLayout) findViewById(R.id.komentariProgressLayout);
+		
 		Intent intent = getIntent();
 		message = intent.getStringExtra("komentari");
 		komentariProgressLayout.setVisibility(View.VISIBLE);
 		
+		listOfComments = new ArrayList<Komentar>();
+		adapter = new KomentariArrayAdapter(this, listOfComments);
+		listView.setAdapter(adapter); 
+		
 		ActionBar ab = getSupportActionBar();
 		String naslov = intent.getStringExtra("naslov");
-		ab.setSubtitle("Komentari na ƒçlanak: " + naslov);
+		ab.setSubtitle(getResources().getString(R.string.title_activity_lista_komentara) + naslov);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
 		
-		fetchArticles();
+		if(listOfComments.isEmpty())
+			fetchArticles();
+		else
+			cleanScreen();
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+
+		outState.putParcelableArray(Val.KEY_VALUES_BUNDLE_SESSION, listOfComments.toArray(new Komentar[listOfComments.size()]));
+	}
+	
+	// The system calls onRestoreInstanceState() only if there is a saved state to restore.
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+
+		for(Parcelable p: savedInstanceState.getParcelableArray(Val.KEY_VALUES_BUNDLE_SESSION))
+		{
+			Komentar tempKomentar = (Komentar) p;
+			listOfComments.add(tempKomentar);
+		}
 	}
 	
 	@Override
@@ -192,18 +121,59 @@ public class ListaKomentara extends SherlockActivity {
 			return super.onOptionsItemSelected(item);
 		}
 	}
-	public void fetchArticles() {
-		if (ActivityHelper.isOnline(this)) {
-			new DownloadRssFeed().execute(message);
-		} else {
-			Toast toast = Toast.makeText(getBaseContext(), R.string.nedostupan_internet, Toast.LENGTH_LONG);
-			toast.show();
-			if (komentariProgressLayout != null)
-				komentariProgressLayout.setVisibility(View.GONE);
-			
-			if (refresh != null)
-				refresh.setActionView(null);
+	
+	private class DownloadRssFeed extends AsyncTask<String, Void, WordpressCommentParser> {
+		@Override
+		protected void onPreExecute() {
 		}
+		
+		@Override
+		protected WordpressCommentParser doInBackground(String... urls) {
+			WordpressCommentParser lzs_feed=null;
+			try {
+				lzs_feed = new WordpressCommentParser(urls[0]);
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			return lzs_feed;
+		}
+
+		@Override
+		protected void onPostExecute(WordpressCommentParser lzs_feed) {
+			cleanScreen();
+			listOfComments.clear();
+			
+			// OVO DORADITI NULL POINTER EXCEPTION NEKAD BACI !!! .... !!! .... !!! .... !!! 
+			
+			if(lzs_feed == null || lzs_feed.getPosts() == null) 
+			{
+				Toast.makeText(ListaKomentara.this, "TEST - NEMA KOMENTARA ZA OVAJ »LANAK!", Toast.LENGTH_LONG).show();
+				finish();
+			}
+			
+			listOfComments.addAll(lzs_feed.getPosts());
+			adapter.notifyDataSetChanged();
+		}
+	}
+	
+	public void fetchArticles() 
+	{
+		if (ActivityHelper.isOnline(this)) 
+			new DownloadRssFeed().execute(message);
+		else 
+		{
+			Toast.makeText(getBaseContext(), R.string.nedostupan_internet, Toast.LENGTH_LONG).show();
+			cleanScreen();
+		}
+	}
+	
+	private void cleanScreen()
+	{
+		if (komentariProgressLayout != null) 	komentariProgressLayout.setVisibility(View.GONE);
+		if (refresh != null) 				refresh.setActionView(null);  
 	}
 }
 

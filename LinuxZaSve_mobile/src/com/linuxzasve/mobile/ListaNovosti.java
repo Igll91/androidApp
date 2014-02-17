@@ -23,7 +23,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.gson.Gson;
-import com.linuxzasve.mobile.adapters.MySimpleArrayAdapter;
+import com.linuxzasve.mobile.adapters.NovostiArrayAdapter;
 import com.linuxzasve.mobile.rest.LzsRestApi;
 import com.linuxzasve.mobile.rest.LzsRestResponse;
 import com.linuxzasve.mobile.rest.Post;
@@ -31,12 +31,13 @@ import com.linuxzasve.mobile.rest.Post;
 public class ListaNovosti extends SherlockActivity implements OnItemClickListener{
 
 	private static final String HTTP_FEEDS_FEEDBURNER_COM_LINUXZASVE = "http://feeds.feedburner.com/linuxzasve";
-	private static final String KEY_VALUES_BUNDLE_SESSION = "valuesOfPosts";
 	
 	private LinearLayout novostiProgressLayout;
 	private MenuItem refresh;
 
 	public static List<Post> values;
+
+	private NovostiArrayAdapter adapter;
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -48,7 +49,7 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 		
 		values = new ArrayList<Post>();
 		
-		MySimpleArrayAdapter adapter = new MySimpleArrayAdapter(this, values);
+		adapter = new NovostiArrayAdapter(this, values);
 		listaClanaka.setAdapter(adapter);
 		
 		novostiProgressLayout = (LinearLayout)findViewById(R.id.novostiProgressLayout);
@@ -91,10 +92,7 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 
-		Log.i("test_tag", "onSaveInstance");
-		// spremi listu novosti .... parcelable sve kaj se tam nalazi !
-		outState.putParcelableArray(KEY_VALUES_BUNDLE_SESSION, values.toArray(new Post[values.size()]));
-		
+		outState.putParcelableArray(Val.KEY_VALUES_BUNDLE_SESSION, values.toArray(new Post[values.size()]));
 	}
 	
 	// The system calls onRestoreInstanceState() only if there is a saved state to restore.
@@ -102,9 +100,7 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
 
-		Log.i("test_tag", "onRestoreInstance");
-		// restore liste, pa onda provjera dali je lista prazna, ako nije znaèi nemoj skidati s neta !
-		for(Parcelable p: savedInstanceState.getParcelableArray(KEY_VALUES_BUNDLE_SESSION))
+		for(Parcelable p: savedInstanceState.getParcelableArray(Val.KEY_VALUES_BUNDLE_SESSION))
 		{
 			Post tempPost = (Post) p;
 			values.add(tempPost);
@@ -154,6 +150,7 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 			cleanScreen();
 			values.clear();
 			values.addAll(lzs_feed.getPosts());
+			adapter.notifyDataSetChanged();
 		}
 	}
 

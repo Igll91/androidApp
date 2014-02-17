@@ -15,12 +15,12 @@ import com.linuxzasve.mobile.R;
 import com.linuxzasve.mobile.rest.Post;
 import com.linuxzasve.mobile.timthumb.TimThumb;
 
-public class MySimpleArrayAdapter extends ArrayAdapter<Post> {
+public class NovostiArrayAdapter extends ArrayAdapter<Post> {
 	
 	private final Context context;
 	private List<Post> naslovi;
 	
-	public MySimpleArrayAdapter(final Context context, final List<Post> naslovi) {
+	public NovostiArrayAdapter(final Context context, final List<Post> naslovi) {
 		super(context, R.layout.novosti_redak, naslovi);
 		this.context = context;
 		this.naslovi = naslovi;

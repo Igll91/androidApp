@@ -96,10 +96,10 @@ public class Image implements Parcelable{
     
     private Image(Parcel in)
     {
-    	this.full 					= in.readParcelable(null);
-    	this.thumbnail 				= in.readParcelable(null);
-    	this.medium 				= in.readParcelable(null);
-    	this.large 					= in.readParcelable(null);
-    	this.wptouch_new_thumbnail 	= in.readParcelable(null);
+    	this.full 					= in.readParcelable(DetailedImage.class.getClassLoader());
+    	this.thumbnail 				= in.readParcelable(DetailedImage.class.getClassLoader());
+    	this.medium 				= in.readParcelable(DetailedImage.class.getClassLoader());
+    	this.large 					= in.readParcelable(DetailedImage.class.getClassLoader());
+    	this.wptouch_new_thumbnail 	= in.readParcelable(DetailedImage.class.getClassLoader());
     }
 }
