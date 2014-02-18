@@ -21,6 +21,7 @@ TO DO :
 ------------------------------------------------------------------------------------
 
 #3 Srediti null pointer Exception kod komentara
+#  provjeri kaj se sve dohvati u listi novosti... da se ne dohvaæaju komentari 2x...
 #4 raspraviti o komentarima, dal postoji neki broj prije da se ne loada bzvz, a na kraju neam komentara ... 
 #5 dalje ideja za raspraviti ... uvoðenje lokalne baze ? možda background servisa ? 
 #6 kod dohvacanja podataka srediti rotaciju... daklem ... da se ne poziva ponovo AsyncTask veæ da se stari nastavi

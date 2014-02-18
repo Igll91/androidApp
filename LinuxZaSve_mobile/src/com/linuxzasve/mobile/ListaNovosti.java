@@ -2,7 +2,6 @@ package com.linuxzasve.mobile;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import android.content.Intent;
@@ -38,7 +37,9 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 	public static List<Post> values;
 
 	private NovostiArrayAdapter adapter;
-
+	
+	private boolean isDownloadRssFeedRunning;
+	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -58,6 +59,8 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 		ActionBar ab = getSupportActionBar();
 		ab.setSubtitle(R.string.subtitle_activity_lista_novosti); 
 
+		// testing 
+		Log.i(Val.TESTING_STATE_TAG, "onCreate()");
 	}
 
 	@Override
@@ -91,20 +94,29 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-
+		
+		//testing
+		Log.i(Val.TESTING_STATE_TAG, "onSaveInstance");
+		
 		outState.putParcelableArray(Val.KEY_VALUES_BUNDLE_SESSION, values.toArray(new Post[values.size()]));
+		outState.putBoolean(Val.KEY_IS_RUNNING_BUNDLE_STATE, isDownloadRssFeedRunning);
 	}
 	
 	// The system calls onRestoreInstanceState() only if there is a saved state to restore.
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-
+		
+		// testing
+		Log.i(Val.TESTING_STATE_TAG, "onRestoreInstance");
+		
 		for(Parcelable p: savedInstanceState.getParcelableArray(Val.KEY_VALUES_BUNDLE_SESSION))
 		{
 			Post tempPost = (Post) p;
 			values.add(tempPost);
 		}
+		
+		isDownloadRssFeedRunning = savedInstanceState.getBoolean(Val.KEY_IS_RUNNING_BUNDLE_STATE, false);
 	}
 	
 	@Override
@@ -112,6 +124,9 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 	{
 		super.onResume();
 
+		//testing
+		Log.i(Val.TESTING_STATE_TAG, "onResume()");
+		
 		if(values.isEmpty()) 	fetchArticles();	
 		else 					cleanScreen();
 	}
@@ -119,6 +134,7 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 	private class DownloadRssFeed extends AsyncTask<String, Void, LzsRestResponse> {
 		@Override
 		protected void onPreExecute() {
+			isDownloadRssFeedRunning = true;
 		}
 
 		@Override
@@ -126,6 +142,9 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 			LzsRestResponse obj2 = null;
 			LzsRestApi api = null;
 
+			// testing 
+			Log.i(Val.TESTING_STATE_TAG, "doInBackground()");
+			
 			try 
 			{
 				api = new LzsRestApi();
@@ -147,6 +166,10 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 
 		@Override
 		protected void onPostExecute(final LzsRestResponse lzs_feed) {
+			
+			// testing
+			Log.i(Val.TESTING_STATE_TAG, "onPostExecute()");
+			
 			cleanScreen();
 			values.clear();
 			values.addAll(lzs_feed.getPosts());
@@ -156,11 +179,16 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 
 	public void fetchArticles() 
 	{
+		Log.i(Val.TESTING_STATE_TAG, "rssFeed state running: " + isDownloadRssFeedRunning);
+		
 		if (ActivityHelper.isOnline(this)) 
-			new DownloadRssFeed().execute(HTTP_FEEDS_FEEDBURNER_COM_LINUXZASVE);
+		{
+			if(isDownloadRssFeedRunning == false)
+				new DownloadRssFeed().execute(HTTP_FEEDS_FEEDBURNER_COM_LINUXZASVE);
+		}
 		else 
 		{
-			Toast.makeText(getBaseContext(), R.string.nedostupan_internet, Toast.LENGTH_LONG).show();
+			Toast.makeText(this , R.string.nedostupan_internet, Toast.LENGTH_LONG).show();
 			cleanScreen();
 		}
 	}
