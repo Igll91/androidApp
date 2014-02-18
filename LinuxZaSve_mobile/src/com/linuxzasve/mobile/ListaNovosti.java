@@ -34,11 +34,12 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 	private LinearLayout novostiProgressLayout;
 	private MenuItem refresh;
 
-	public static List<Post> values;
+	private List<Post> values;
 
 	private NovostiArrayAdapter adapter;
 	
 	private boolean isDownloadRssFeedRunning;
+
 	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -110,6 +111,7 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 		// testing
 		Log.i(Val.TESTING_STATE_TAG, "onRestoreInstance");
 		
+		values.clear();
 		for(Parcelable p: savedInstanceState.getParcelableArray(Val.KEY_VALUES_BUNDLE_SESSION))
 		{
 			Post tempPost = (Post) p;
@@ -128,7 +130,13 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 		Log.i(Val.TESTING_STATE_TAG, "onResume()");
 		
 		if(values.isEmpty()) 	fetchArticles();	
-		else 					cleanScreen();
+		else 					
+		{
+			if(isDownloadRssFeedRunning)
+				showScreen();
+			else
+				cleanScreen();
+		}
 	}
 	
 	private class DownloadRssFeed extends AsyncTask<String, Void, LzsRestResponse> {
@@ -170,9 +178,12 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 			// testing
 			Log.i(Val.TESTING_STATE_TAG, "onPostExecute()");
 			
-			cleanScreen();
 			values.clear();
 			values.addAll(lzs_feed.getPosts());
+			isDownloadRssFeedRunning = false;
+			cleanScreen(); // SREDITI NE REFRESHA DOBRO ! 
+			// Sve ovo se fino pozove i izvrši ali jednostavno se screen ne cleana... 
+			
 			adapter.notifyDataSetChanged();
 		}
 	}
@@ -184,7 +195,10 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 		if (ActivityHelper.isOnline(this)) 
 		{
 			if(isDownloadRssFeedRunning == false)
+			{
 				new DownloadRssFeed().execute(HTTP_FEEDS_FEEDBURNER_COM_LINUXZASVE);
+				showScreen();
+			}
 		}
 		else 
 		{
@@ -207,8 +221,15 @@ public class ListaNovosti extends SherlockActivity implements OnItemClickListene
 		startActivity(i);
 	}
 	
+	private void showScreen() {
+		Log.i(Val.TESTING_STATE_TAG, "showScreen()");
+		if (novostiProgressLayout != null) 	novostiProgressLayout.setVisibility(View.VISIBLE);
+		if (refresh != null) 				refresh.setActionView(R.layout.actionbar_indeterminate_progress);
+	}
+
 	private void cleanScreen()
 	{
+		Log.i(Val.TESTING_STATE_TAG, "cleanScreen()");
 		if (novostiProgressLayout != null) 	novostiProgressLayout.setVisibility(View.GONE);
 		if (refresh != null) 				refresh.setActionView(null);  
 	}
