@@ -3,6 +3,7 @@ package com.linuxzasve.mobile.adapters;
 import java.util.List;
 
 import android.content.Context;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 import com.linuxzasve.mobile.R;
+import com.linuxzasve.mobile.Val;
 import com.linuxzasve.mobile.rest.Post;
 import com.linuxzasve.mobile.timthumb.TimThumb;
 
@@ -56,6 +58,39 @@ public class NovostiArrayAdapter extends ArrayAdapter<Post> {
 		UrlImageViewHelper.setUrlDrawable(thumbnail, thumbnailUrl);
 		
 		return convertView;
+	}
+
+	public List<Post> getNaslovi() {
+		return naslovi;
+	}
+
+	public void setNaslovi(List<Post> naslovi) {
+		this.naslovi = naslovi;
+	}
+	
+	public void restoreListFromBundle(Parcelable[] list)
+	{
+		naslovi.clear();
+		
+		for(Parcelable p: list)
+		{
+			Post tempPost = (Post) p;
+			naslovi.add(tempPost);
+		}
+		
+		notifyDataSetChanged();
+	}
+	
+	public void addPosts(List<Post> list)
+	{
+		naslovi.clear();
+		naslovi.addAll(list);
+		notifyDataSetChanged();
+	}
+	
+	public Post getPost(int position)
+	{
+		return naslovi.get(position);
 	}
 }
 
